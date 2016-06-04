@@ -1,5 +1,5 @@
 # resto
 
-This is an excercise in creating a simple full stack web app for displaying restaurant menus. In France they're called restos.
+This is an excercise in creating a simple full stack web app in Python that displays restaurant menus. In France they're called restos.
 
-Voulez vous manger dine avec moi ce soir?
+*Voulez vous diner avec moi ce soir?*
