@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 
+import sys
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import func
+from database_setup import Restaurant, MenuItem, Base
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+import datetime
 import cgi
 
 
@@ -8,6 +14,42 @@ class WebServerHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         try:
+            # list all restos
+            if self.path.endswith("/restaurants") or self.path.endswith("/restos"):
+                engine = create_engine('sqlite:///restaurants.db')
+                Base.metadata.bind = engine
+                DBSession = sessionmaker(bind=engine)
+                session = DBSession()
+                result = session.query(Restaurant.name).order_by(Restaurant.name.asc()).all()
+                # Write html headers
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+
+                output = ""
+                output += "<html><body>"
+                output += "<h2>Restaurants</h2>"
+                output += "<ul>"
+                for item in result:
+                    output += "<li>" + item[0] + "</li>\n"
+                output += "</ul>"
+                output += "</body></html>"
+                self.wfile.write(output)
+                print output
+
+
+            if self.path.endswith("/hola"):
+                    self.send_response(200)
+                    self.send_header('Content-type', 'text/html')
+                    self.end_headers()
+                    output = ""
+                    output += "<html><body>"
+                    output += "<h1>&#161 Hola !</h1>"
+                    output += '''<form method='POST' enctype='multipart/form-data' action='http://localhost:8080/'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
+                    output += "</body></html>"
+                    self.wfile.write(output)
+                    print output
+                    return
             if self.path.endswith("/hello"):
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -16,18 +58,6 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 output += "<html><body>"
                 output += "<h1>Hello!</h1>"
                 output += '''<form method='POST' enctype='multipart/form-data' action='http://localhost:8080/'><h2>What would you like me to say?</h2><input name="message" type="text"><input type="submit" value="Submit"> </form>'''
-                output += "</body></html>"
-                self.wfile.write(output)
-                print output
-                return
-            if self.path.endswith("/hola"):
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                output = ""
-                output += "<html><body>"
-                output += "<h1>&#161 Hola !</h1>"
-                output += '''<form method='POST' enctype='multipart/form-data' action='http://localhost:8080/'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
                 output += "</body></html>"
                 self.wfile.write(output)
                 print output
