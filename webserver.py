@@ -3,6 +3,7 @@
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import cgi
 
+
 class WebServerHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
@@ -31,6 +32,7 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(output)
                 print output
                 return
+
         except IOError:
             self.send_error(404, 'File Not Found: %s' % self.path)
 
@@ -61,6 +63,7 @@ class WebServerHandler(BaseHTTPRequestHandler):
 
         except:
             pass
+
 
 def main():
     try:
