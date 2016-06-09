@@ -10,15 +10,19 @@ import datetime
 import cgi
 
 
+def DBSession():
+    engine = create_engine('sqlite:///restaurants.db')
+    Base.metadata.bind = engine
+    session = sessionmaker(bind=engine)
+    return session()
+
+
 class WebServerHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         try:
             # list all restos
             if self.path.endswith("/restaurants") or self.path.endswith("/restos"):
-                engine = create_engine('sqlite:///restaurants.db')
-                Base.metadata.bind = engine
-                DBSession = sessionmaker(bind=engine)
                 session = DBSession()
                 result = session.query(Restaurant.name).order_by(Restaurant.name.asc()).all()
                 # Write html headers
