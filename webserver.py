@@ -31,7 +31,9 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 output += "<h2>Restaurants</h2>"
                 output += "<ul>"
                 for item in result:
-                    output += "<li>" + item[0] + "</li>\n"
+                    link_edit = ' - <a href="http://localhost:8080/restaurants">edit</a>'
+                    link_del = '<a href="http://localhost:8080/restaurants"> | delete</a>'
+                    output += "<li>" + item[0] + link_edit + link_del + "</li>\n"
                 output += "</ul>"
                 output += "</body></html>"
                 self.wfile.write(output)
