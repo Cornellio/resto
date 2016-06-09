@@ -43,19 +43,21 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(output)
                 print output
 
+            if self.path.endswith("/new"):
+                # create new resto
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                output = ""
+                output += "<html><body>"
+                output += '''
+                    <form method='POST' enctype='multipart/form-data'
+                    action='http://localhost:8080/'><h2>Add New Restaurant:</h2><input name="create_new" type="text"><input type="submit" value="Submit"> </form>
+                    '''
+                output += "</body></html>"
+                self.wfile.write(output)
+                return
 
-            if self.path.endswith("/hola"):
-                    self.send_response(200)
-                    self.send_header('Content-type', 'text/html')
-                    self.end_headers()
-                    output = ""
-                    output += "<html><body>"
-                    output += "<h1>&#161 Hola !</h1>"
-                    output += '''<form method='POST' enctype='multipart/form-data' action='http://localhost:8080/'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
-                    output += "</body></html>"
-                    self.wfile.write(output)
-                    print output
-                    return
             if self.path.endswith("/hello"):
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -64,6 +66,19 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 output += "<html><body>"
                 output += "<h1>Hello!</h1>"
                 output += '''<form method='POST' enctype='multipart/form-data' action='http://localhost:8080/'><h2>What would you like me to say?</h2><input name="message" type="text"><input type="submit" value="Submit"> </form>'''
+                output += "</body></html>"
+                self.wfile.write(output)
+                print output
+                return
+
+            if self.path.endswith("/hola"):
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                output = ""
+                output += "<html><body>"
+                output += "<h1>&#161 Hola !</h1>"
+                output += '''<form method='POST' enctype='multipart/form-data' action='http://localhost:8080/'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
                 output += "</body></html>"
                 self.wfile.write(output)
                 print output
@@ -79,23 +94,39 @@ class WebServerHandler(BaseHTTPRequestHandler):
             self.end_headers()
 
             ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
+
             if ctype == 'multipart/form-data':
                 fields=cgi.parse_multipart(self.rfile, pdict)
-                messagecontent = fields.get('message')
 
-            output = ""
+                # Hello world test
+                if fields.get('message'):
+                    messagecontent = fields.get('message')
+                    output = ""
+                    output +=  "<html><body>"
+                    output += " <h2> Okay, how about this: </h2>"
 
-            output +=  "<html><body>"
-            output += " <h2> Okay, how about this: </h2>"
+                    output += "<h1> %s </h1>" % messagecontent[0]
+                    output += '''<form method='POST' enctype='multipart/form-data' action='http://localhost:8080/'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
+                    output += "</html></body>"
 
-            output += "<h1> %s </h1>" % messagecontent[0]
+                    self.wfile.write(output)
+                    print output
 
-            output += '''<form method='POST' enctype='multipart/form-data' action='http://localhost:8080/'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
+                # Add new restaurant to database
+                if fields.get('create_new'):
+                    session = DBSession()
+                    restaurante_name = fields.get('create_new')
+                    new_restaurant = Restaurant(name = restaurante_name[0])
+                    session.add(new_restaurant)
+                    session.commit()
+                    print "DB: inserting new restaurant: %s" % new_restaurant
 
-            output += "</html></body>"
+                    # Verify new resto got put in DB
 
-            self.wfile.write(output)
-            print output
+
+
+                    self.wfile.write(output)
+                    print output
 
         except:
             pass
