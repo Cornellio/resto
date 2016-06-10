@@ -43,7 +43,7 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(output)
                 print output
 
-            if self.path.endswith("/new"):
+            if self.path.endswith("/restaurants/new"):
                 # create new resto
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -122,8 +122,8 @@ class WebServerHandler(BaseHTTPRequestHandler):
                     print "DB: inserting new restaurant: %s" % new_restaurant
 
                     # Verify new resto got put in DB
-
-
+                    result = session.query(Restaurant.name[new_restaurant])
+                    print result
 
                     self.wfile.write(output)
                     print output
