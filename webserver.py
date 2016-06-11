@@ -24,7 +24,7 @@ class WebServerHandler(BaseHTTPRequestHandler):
             # list all restos
             if self.path.endswith("/restaurants") or self.path.endswith("/restos"):
                 session = DBSession()
-                result = session.query(Restaurant.name).order_by(Restaurant.name.asc()).all()
+                result = session.query(Restaurant).order_by(Restaurant.name.asc()).all()
                 # Write html headers
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -34,15 +34,16 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 output += "<html><body>"
                 output += "<h2>Restaurants</h2>"
                 output += "<ul>"
-                for item in result:
-                    link_edit = ' - <a href="http://localhost:8080/restaurants">edit</a>'
-                    link_del = '<a href="http://localhost:8080/restaurants"> | delete</a>'
-                    output += "<li>" + item[0] + link_edit + link_del + "</li>\n"
+                for restaurant in result:
+                    link_edit = ' - <a href="/restaurants/%s/edit">edit</a>' % (str(restaurant.id))
+                    link_del = '<a href="/restaurants/%s/delete"> | delete</a>' % (str(restaurant.id))
+                    output += "<li>" + restaurant.name + link_edit + link_del + "</li>\n"
                 output += "</ul>"
                 output += "</body></html>"
                 self.wfile.write(output)
                 print output
 
+            # Add new restaurant
             if self.path.endswith("/restaurants/new"):
                 # create new resto
                 self.send_response(200)
@@ -57,6 +58,26 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 output += "</body></html>"
                 self.wfile.write(output)
                 return
+
+            # Edit a restaurant with given id
+
+            if self.path.endswith("/edit"):
+                session = DBSession()
+                id_to_edit = self.path.split('/')[2]
+                print id_to_edit
+                restaurant = session.query(Restaurant).filter_by(id = id_to_edit)
+
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                output = ""
+                output += "<html><body>"
+                output += "<h1>Edit %s</h1>" % (restaurant)
+                output += "got path %s" % (id)
+                output += "</body></html>"
+                self.wfile.write(output)
+                return
+
 
             if self.path.endswith("/hello"):
                 self.send_response(200)
@@ -121,12 +142,18 @@ class WebServerHandler(BaseHTTPRequestHandler):
                     session.commit()
                     print "DB: inserting new restaurant: %s" % new_restaurant
 
-                    # Verify new resto got put in DB
-                    result = session.query(Restaurant.name[new_restaurant])
-                    print result
+                    # Redirect back to restaurant list
+                    # self.send_response(301)
+                    # self.send_header('Content-type', 'text/html')
+                    # self.send_header('Location', 'http://localhost:8080/restaurants')
+                    # self.end_headers()
 
-                    self.wfile.write(output)
-                    print output
+                    # Verify new resto got put in DB
+                    # result = session.query(Restaurant.name[new_restaurant])
+                    # print result
+
+                    # self.wfile.write(output)
+                    # print output
 
         except:
             pass
