@@ -60,12 +60,10 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 return
 
             # Edit a restaurant with given id
-
             if self.path.endswith("/edit"):
                 session = DBSession()
-                id_to_edit = self.path.split('/')[2]
-                print id_to_edit
-                restaurant = session.query(Restaurant).filter_by(id = id_to_edit)
+                restaurant_id = self.path.split('/')[2]
+                restaurant = session.query(Restaurant).filter_by(id = restaurant_id)
 
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -73,7 +71,15 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 output = ""
                 output += "<html><body>"
                 output += "<h1>Edit %s</h1>" % (restaurant)
-                output += "got path %s" % (id)
+                output += '''
+                    <form method='POST' enctype='multipart/form-data'
+                    action='http://localhost:8080/'><h2>Edit:</h2>
+                    <input name="new_name" type="text">
+                    '''
+                output += '<input name="restaurant_id" type="hidden" value="%s">' % (restaurant_id)
+                output += '<input type="submit" value="Go for it"> </form>'
+
+                print output
                 output += "</body></html>"
                 self.wfile.write(output)
                 return
@@ -133,7 +139,7 @@ class WebServerHandler(BaseHTTPRequestHandler):
                     self.wfile.write(output)
                     print output
 
-                # Add new restaurant to database
+                # Add restaurant
                 if fields.get('create_new'):
                     session = DBSession()
                     restaurante_name = fields.get('create_new')
@@ -154,6 +160,24 @@ class WebServerHandler(BaseHTTPRequestHandler):
 
                     # self.wfile.write(output)
                     # print output
+
+                # Edit restaurant
+                if fields.get('new_name'):
+                    print 'Start edit:',
+                    print 'Got POST fields: ', fields
+                    id_current = fields.get('restaurant_id')
+                    name_new = fields.get('new_name')
+                    print id_current
+                    print name_new
+
+                    session = DBSession()
+
+                    print '# Remove existing entry and add new'
+                    session.query(Restaurant).filter(Restaurant.id==id_current[0]).delete()
+                    new = Restaurant(name = name_new[0])
+                    session.add(new)
+                    session.commit()
+
 
         except:
             pass

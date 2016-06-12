@@ -27,7 +27,7 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 def query1():
-    r = session.query(Restaurant).order_by(Restaurant.name.asc()).all()
+    r = session.query(Restaurant).order_by(Restaurant.id.asc()).all()
 
     for item in r:
         print item.id
@@ -41,6 +41,12 @@ def query2():
         print x.id
         print x.name
 
+def query3():
+    # session.query(Restaurant).filter(Restaurant.id==23).delete()
+    u = Restaurant(name = "qAdd 1")
+    session.add(u)
+    session.commit()
+
 
 
 ## Try to find by name
@@ -48,8 +54,9 @@ def query2():
 # print type(restos_all_l)
 # if x in restos_all_l:
 #     print 'found'
-# else:
+# else
 #     print 'not'
 
 if __name__ == '__main__':
-    query2()
+    query3()
+    query1()
