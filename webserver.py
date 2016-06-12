@@ -41,7 +41,6 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 output += "</ul>"
                 output += "</body></html>"
                 self.wfile.write(output)
-                print output
 
             # Add new restaurant
             if self.path.endswith("/restaurants/new"):
