@@ -66,7 +66,7 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 # Slice the id from URI
                 restaurant_id = self.path.split('/')[2]
                 restaurant = session.query(Restaurant.name).filter_by(id = restaurant_id).one()
-                print restaurant
+
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
@@ -89,7 +89,7 @@ class WebServerHandler(BaseHTTPRequestHandler):
 
                 # Slice the id from URI
                 restaurant_id = self.path.split('/')[2]
-                rest = session.query(Restaurant).filter_by(id = restaurant_id).one()
+                restaurant = session.query(Restaurant.name).filter_by(id = restaurant_id).one()
 
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -97,12 +97,14 @@ class WebServerHandler(BaseHTTPRequestHandler):
 
                 output = ''
                 output += '<html><body>'
-                output += '<h1> Delete Restaurant</h1>'
+                output += '<h1> Delete %s</h1>' % (restaurant)
                 output += '<form method="POST" enctype="multipart/form-data"'
-                output += 'action="http://localhost:8080/"><h2>Change %s to </h2>' % (restaurant)
-                output += '<input name="new_name" type="text">'
-                output += '<input name="restaurant_id" type="hidden" value="%s">' % (restaurant_id)
-                output += '<input type="submit" value="Go for it"> </form>'
+                output += 'action="http://localhost:8080/">'
+                output += '<input name="restaurant_id_del" type="hidden" value="%s">' % (restaurant_id)
+                output += 'Delete this restaurant?'
+                output += '<p> <input type="submit" value="Go for it!"> </form>'
+                output += '''<input type="button" onclick="location.href='http://localhost:8080/restaurants';" value="Cancel" />'''
+
                 output += '</body></html>'
                 self.wfile.write(output)
                 return
@@ -185,7 +187,7 @@ class WebServerHandler(BaseHTTPRequestHandler):
 
                 # Edit restaurant
                 if fields.get('new_name'):
-                    print 'Start edit:',
+                    print 'Edit resto'
                     print 'Got POST fields: ', fields
                     id_current = fields.get('restaurant_id')
                     name_new = fields.get('new_name')
@@ -200,6 +202,16 @@ class WebServerHandler(BaseHTTPRequestHandler):
                     session.add(new)
                     session.commit()
 
+                if fields.get('restaurant_id_del'):
+                    print 'Delete resto:'
+                    print 'Got POST fields: ', fields
+                    id = fields.get('restaurant_id_del')
+
+                    session = DBSession()
+
+                    print 'Remove existing entry, id %s' % (id)
+                    session.query(Restaurant).filter(Restaurant.id==id[0]).delete()
+                    session.commit()
 
         except:
             pass
@@ -212,7 +224,7 @@ def main():
         print "Web Server running on port %s" % port
         server.serve_forever()
     except KeyboardInterrupt:
-        print " ^C entered, stopping web server...."
+        print " stopping web server...."
         server.socket.close()
 
 
