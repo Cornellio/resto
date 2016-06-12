@@ -21,7 +21,7 @@ class WebServerHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         try:
-            # list all restos
+            # list all restaurants
             if self.path.endswith("/restaurants") or self.path.endswith("/restos"):
                 session = DBSession()
                 result = session.query(Restaurant).order_by(Restaurant.name.asc()).all()
@@ -62,28 +62,28 @@ class WebServerHandler(BaseHTTPRequestHandler):
             # Edit a restaurant with given id
             if self.path.endswith("/edit"):
                 session = DBSession()
+
+                # Slice the id from URI
                 restaurant_id = self.path.split('/')[2]
-                restaurant = session.query(Restaurant).filter_by(id = restaurant_id)
+                match = session.query(Restaurant).filter_by(id = restaurant_id)
+                for restaurant in match:
+                    restaurant = restaurant.name
 
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
-                output = ""
-                output += "<html><body>"
-                output += "<h1>Edit %s</h1>" % (restaurant)
-                output += '''
-                    <form method='POST' enctype='multipart/form-data'
-                    action='http://localhost:8080/'><h2>Edit:</h2>
-                    <input name="new_name" type="text">
-                    '''
+
+                output = ''
+                output += '<html><body>'
+                output += '<h1> Rename Restaurant</h1>'
+                output += '<form method="POST" enctype="multipart/form-data"'
+                output += 'action="http://localhost:8080/"><h2>Change %s to </h2>' % (restaurant)
+                output += '<input name="new_name" type="text">'
                 output += '<input name="restaurant_id" type="hidden" value="%s">' % (restaurant_id)
                 output += '<input type="submit" value="Go for it"> </form>'
-
-                print output
-                output += "</body></html>"
+                output += '</body></html>'
                 self.wfile.write(output)
                 return
-
 
             if self.path.endswith("/hello"):
                 self.send_response(200)
