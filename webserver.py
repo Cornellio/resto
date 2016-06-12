@@ -11,11 +11,11 @@ import cgi
 
 
 def DBSession():
+    ''' Establish database session '''
     engine = create_engine('sqlite:///restaurants.db')
     Base.metadata.bind = engine
     session = sessionmaker(bind=engine)
     return session()
-
 
 class WebServerHandler(BaseHTTPRequestHandler):
 
@@ -65,9 +65,31 @@ class WebServerHandler(BaseHTTPRequestHandler):
 
                 # Slice the id from URI
                 restaurant_id = self.path.split('/')[2]
-                match = session.query(Restaurant).filter_by(id = restaurant_id)
-                for restaurant in match:
-                    restaurant = restaurant.name
+                restaurant = session.query(Restaurant.name).filter_by(id = restaurant_id).one()
+                print restaurant
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+
+                output = ''
+                output += '<html><body>'
+                output += '<h1> Rename %s</h1>' % (restaurant)
+                output += '<form method="POST" enctype="multipart/form-data"'
+                output += 'action="http://localhost:8080/">'
+                output += '<input name="new_name" type="text">'
+                output += '<input name="restaurant_id" type="hidden" value="%s">' % (restaurant_id)
+                output += '<input type="submit" value="Rename"> </form>'
+                output += '</body></html>'
+                self.wfile.write(output)
+                return
+
+            # Delete a restaurant with given id
+            if self.path.endswith("/delete"):
+                session = DBSession()
+
+                # Slice the id from URI
+                restaurant_id = self.path.split('/')[2]
+                rest = session.query(Restaurant).filter_by(id = restaurant_id).one()
 
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -75,7 +97,7 @@ class WebServerHandler(BaseHTTPRequestHandler):
 
                 output = ''
                 output += '<html><body>'
-                output += '<h1> Rename Restaurant</h1>'
+                output += '<h1> Delete Restaurant</h1>'
                 output += '<form method="POST" enctype="multipart/form-data"'
                 output += 'action="http://localhost:8080/"><h2>Change %s to </h2>' % (restaurant)
                 output += '<input name="new_name" type="text">'
