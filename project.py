@@ -16,7 +16,7 @@ session = DBSession()
 app = Flask(__name__)
 
 @app.route('/')
-@app.route('/restaurants/<int:restaurant_id>/')
+@app.route('/restaurant/<int:restaurant_id>/')
 def restaurantMenu(restaurant_id):
 
     restaurant = session.query(Restaurant).filter_by(id = restaurant_id).one()
@@ -32,8 +32,24 @@ def restaurantMenu(restaurant_id):
         output += item.description
         output += '</br></br>'
 
-
     return output
+
+
+@app.route('/restaurant/<int:restaurant_id>/new/')
+def newMenuItem(restaurant_id):
+    return 'task 1. create new menu item'
+
+
+@app.route('/restaurant/<int:restaurant_id>/<int:menu_id>/edit/')
+def editMenuItem(restaurant_id, menu_id):
+    return 'task 2. edit a menu item'
+
+
+@app.route('/restaurant/<int:restaurant_id>/<int:menu_id>/delete/')
+def deleteMenuItem(restaurant_id, menu_id):
+    return 'task 3. delete a menu item'
+
+
 
 if __name__ == '__main__':
     app.debug = True
