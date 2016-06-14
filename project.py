@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import func
 from database_setup import Restaurant, MenuItem, Base
-from flask import Flask
+from flask import Flask, render_template
 
 engine = create_engine('sqlite:///restaurants.db')
 Base.metadata.bind = engine
