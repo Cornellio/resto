@@ -45,7 +45,7 @@ def editRestaurant(restaurant_id):
             return redirect(url_for('showRestaurants'))
     else:
         return render_template(
-            'editRestaurant.html', restaurant=editedRestaurant)
+            'editrestaurant.html', restaurant=editedRestaurant)
 
 
 @app.route('/restaurant/<int:restaurant_id>/delete/', methods=['GET', 'POST'])
@@ -59,7 +59,7 @@ def deleteRestaurant(restaurant_id):
             url_for('showRestaurants', restaurant_id=restaurant_id))
     else:
         return render_template(
-            'deleteRestaurant.html', restaurant=restaurantToDelete)
+            'deleterestaurant.html', restaurant=restaurantToDelete)
 
 
 @app.route('/restaurant/<int:restaurant_id>/')
