@@ -16,7 +16,52 @@ session = DBSession()
 app = Flask(__name__)
 
 
+# Show all restaurants
 @app.route('/')
+@app.route('/restaurant/')
+def showRestaurants():
+    restaurants = session.query(Restaurant).all()
+    return render_template('restaurants.html', restaurants = restaurants)
+
+
+@app.route('/restaurant/new/', methods=['GET', 'POST'])
+def newRestaurant():
+    if request.method == 'POST':
+        newRestaurant = Restaurant(name=request.form['name'])
+        session.add(newRestaurant)
+        session.commit()
+        return redirect(url_for('showRestaurants'))
+    else:
+        return render_template('newRestaurant.html')
+
+
+@app.route('/restaurant/<int:restaurant_id>/edit/', methods=['GET', 'POST'])
+def editRestaurant(restaurant_id):
+    editedRestaurant = session.query(
+        Restaurant).filter_by(id=restaurant_id).one()
+    if request.method == 'POST':
+        if request.form['name']:
+            editedRestaurant.name = request.form['name']
+            return redirect(url_for('showRestaurants'))
+    else:
+        return render_template(
+            'editRestaurant.html', restaurant=editedRestaurant)
+
+
+@app.route('/restaurant/<int:restaurant_id>/delete/', methods=['GET', 'POST'])
+def deleteRestaurant(restaurant_id):
+    restaurantToDelete = session.query(
+        Restaurant).filter_by(id=restaurant_id).one()
+    if request.method == 'POST':
+        session.delete(restaurantToDelete)
+        session.commit()
+        return redirect(
+            url_for('showRestaurants', restaurant_id=restaurant_id))
+    else:
+        return render_template(
+            'deleteRestaurant.html', restaurant=restaurantToDelete)
+
+
 @app.route('/restaurant/<int:restaurant_id>/')
 def restaurantMenu(restaurant_id):
 
