@@ -19,10 +19,19 @@ app = Flask(__name__)
 
 @app.route('/restaurant/<int:restaurant_id>/menu/JSON')
 def restaurantMenuJSON(restaurant_id):
-    restaurant = session.query(Restaurant).filter_by(id = restaurant_id).one()
+    # restaurant = session.query(Restaurant).filter_by(id = restaurant_id).one()
     items = session.query(MenuItem).filter_by(restaurant_id = restaurant_id).all()
 
-    result = MenuItems = [i.serialize for i in items]
+    result = [i.serialize for i in items]
+    return jsonify(result)
+
+
+@app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/JSON/')
+def restaurantMenuItemJSON(restaurant_id, menu_id):
+    # restaurant = session.query(Restaurant).filter_by(id = restaurant_id).one()
+    items = session.query(MenuItem).filter_by(id = menu_id)
+
+    result = [i.serialize for i in items]
     return jsonify(result)
 
 
