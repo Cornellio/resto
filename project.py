@@ -32,7 +32,7 @@ def newRestaurant():
         session.commit()
         return redirect(url_for('showRestaurants'))
     else:
-        return render_template('newRestaurant.html')
+        return render_template('newrestaurant.html')
 
 
 @app.route('/restaurant/<int:restaurant_id>/edit/', methods=['GET', 'POST'])
