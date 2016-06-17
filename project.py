@@ -58,7 +58,7 @@ def deleteMenuItem(restaurant_id, menu_id):
     deletedItem = session.query(MenuItem).filter_by(id = menu_id).one()
 
     if request.method == 'POST':
-        if request.form:
+        if request.form['delete']:
             session.delete(deletedItem)
         session.commit()
         return redirect(url_for('restaurantMenu', restaurant_id = restaurant_id))

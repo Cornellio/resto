@@ -4,7 +4,8 @@
 
 <form action="{{ url_for('deleteMenuItem',restaurant_id = item.restaurant_id, menu_id=item.id) }}" method = 'post'>
 
-  <input type='submit', value = 'Delete'>
+  <input type='hidden' name='delete' value='delete'>
+  <input type='submit' value='Delete'>
 
 </form>
 
