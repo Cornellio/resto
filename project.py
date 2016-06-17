@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import func
 from database_setup import Restaurant, MenuItem, Base
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 
 engine = create_engine('sqlite:///restaurants.db')
 Base.metadata.bind = engine
@@ -14,6 +14,7 @@ DBSession = sessionmaker(bind = engine)
 session = DBSession()
 
 app = Flask(__name__)
+
 
 @app.route('/')
 @app.route('/restaurant/<int:restaurant_id>/')
@@ -32,6 +33,7 @@ def newMenuItem(restaurant_id):
         newItem = MenuItem(name = request.form['name'], restaurant_id = restaurant_id)
         session.add(newItem)
         session.commit()
+        flash("new menu item created")
         return redirect(url_for('restaurantMenu', restaurant_id = restaurant_id))
     else:
         return render_template('newmenuitem.html', restaurant_id = restaurant_id)
@@ -47,6 +49,7 @@ def editMenuItem(restaurant_id, menu_id):
             editedItem.name = request.form['name']
         session.add(editedItem)
         session.commit()
+        flash("Menu item edited")
         return redirect(url_for('restaurantMenu', restaurant_id = restaurant_id))
     else:
         return render_template('editmenuitem.html', restaurant_id = restaurant_id, menu_id = menu_id, item = editedItem)
@@ -61,6 +64,7 @@ def deleteMenuItem(restaurant_id, menu_id):
         if request.form['delete']:
             session.delete(deletedItem)
         session.commit()
+        flash("menu item deleted")
         return redirect(url_for('restaurantMenu', restaurant_id = restaurant_id))
     else:
         # return deletedItem.name
@@ -69,4 +73,5 @@ def deleteMenuItem(restaurant_id, menu_id):
 
 if __name__ == '__main__':
     app.debug = True
+    app.secret_key = 'secret'
     app.run(host = '0.0.0.0', port = 8080)
