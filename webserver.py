@@ -17,14 +17,18 @@ def DBSession():
     session = sessionmaker(bind=engine)
     return session()
 
+
 class WebServerHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         try:
             # list all restaurants
-            if self.path.endswith("/restaurants") or self.path.endswith("/restos"):
+            if self.path.endswith("/restaurants") or \
+                    self.path.endswith("/restos"):
                 session = DBSession()
-                result = session.query(Restaurant).order_by(Restaurant.name.asc()).all()
+                result = session.query(Restaurant).order_by(
+                    Restaurant.name.asc()).all(
+                )
                 # Write html headers
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -52,7 +56,9 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 output += "<html><body>"
                 output += '''
                     <form method='POST' enctype='multipart/form-data'
-                    action='http://localhost:8080/'><h2>Add New Restaurant:</h2><input name="add_new_resto" type="text"><input type="submit" value="Submit"> </form>
+                    action='http://localhost:8080/'><h2>Add New Restaurant:\
+                        </h2><input name="add_new_resto" type="text">\
+                        <input type="submit" value="Submit"> </form>
                     '''
                 output += "</body></html>"
                 self.wfile.write(output)
@@ -64,7 +70,8 @@ class WebServerHandler(BaseHTTPRequestHandler):
 
                 # Slice the id from URI
                 restaurant_id = self.path.split('/')[2]
-                restaurant = session.query(Restaurant.name).filter_by(id = restaurant_id).one()
+                restaurant = session.query(Restaurant.name).filter_by(
+                    id=restaurant_id).one()
 
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -76,7 +83,8 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 output += '<form method="POST" enctype="multipart/form-data"'
                 output += 'action="http://localhost:8080/">'
                 output += '<input name="rename_resto" type="text">'
-                output += '<input name="restaurant_id" type="hidden" value="%s">' % (restaurant_id)
+                output += '<input name="restaurant_id" type="hidden"\
+                    value="%s">' % (restaurant_id)
                 output += '<input type="submit" value="Rename"> </form>'
                 output += '</body></html>'
                 self.wfile.write(output)
@@ -88,7 +96,8 @@ class WebServerHandler(BaseHTTPRequestHandler):
 
                 # Slice the id from URI
                 restaurant_id = self.path.split('/')[2]
-                restaurant = session.query(Restaurant.name).filter_by(id = restaurant_id).one()
+                restaurant = session.query(Restaurant.name).filter_by(
+                    id=restaurant_id).one()
 
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -99,10 +108,13 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 output += '<h1> Delete %s</h1>' % (restaurant)
                 output += '<form method="POST" enctype="multipart/form-data"'
                 output += 'action="http://localhost:8080/">'
-                output += '<input name="del_resto_by_id" type="hidden" value="%s">' % (restaurant_id)
+                output += '<input name="del_resto_by_id"\
+                    type="hidden" value="%s">' % (restaurant_id)
                 output += 'Delete this restaurant?'
-                output += '<p> <input type="submit" value="Go for it!"> </form>'
-                output += '''<input type="button" onclick="location.href='http://localhost:8080/restaurants';" value="Cancel" />'''
+                output += '<p> <input type="submit" value="Go for it!"></form>'
+                output += '''<input type="button"\
+                    onclick="location.href='http://localhost:8080/restaurants';\
+                    " value="Cancel" />'''
 
                 output += '</body></html>'
                 self.wfile.write(output)
@@ -115,7 +127,10 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 output = ""
                 output += "<html><body>"
                 output += "<h1>Hello!</h1>"
-                output += '''<form method='POST' enctype='multipart/form-data' action='http://localhost:8080/'><h2>What would you like me to say?</h2><input name="message" type="text"><input type="submit" value="Submit"> </form>'''
+                output += '''<form method='POST' enctype='multipart/form-data'\
+                    action='http://localhost:8080/'><h2>What shall I say?\
+                    </h2><input name="message" type="text">\
+                    <input type="submit" value="Submit"> </form>'''
                 output += "</body></html>"
                 self.wfile.write(output)
                 print output
@@ -128,7 +143,10 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 output = ""
                 output += "<html><body>"
                 output += "<h1>&#161 Hola !</h1>"
-                output += '''<form method='POST' enctype='multipart/form-data' action='http://localhost:8080/'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
+                output += '''<form method='POST' enctype='multipart/form-data'\
+                    action='http://localhost:8080/'><h2>What would you like me\
+                    to say?</h2><input name="message" type="text">\
+                    <input type="submit" value="Submit"> </form>'''
                 output += "</body></html>"
                 self.wfile.write(output)
                 print output
@@ -137,26 +155,29 @@ class WebServerHandler(BaseHTTPRequestHandler):
         except IOError:
             self.send_error(404, 'File Not Found: %s' % self.path)
 
-
     def do_POST(self):
         try:
             self.send_response(301)
             self.end_headers()
 
-            ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
+            ctype, pdict = cgi.parse_header(
+                self.headers.getheader('content-type'))
 
             if ctype == 'multipart/form-data':
-                fields=cgi.parse_multipart(self.rfile, pdict)
+                fields = cgi.parse_multipart(self.rfile, pdict)
 
                 # Hello world test
                 if fields.get('message'):
                     messagecontent = fields.get('message')
                     output = ""
-                    output +=  "<html><body>"
+                    output += "<html><body>"
                     output += " <h2> Okay, how about this: </h2>"
 
                     output += "<h1> %s </h1>" % messagecontent[0]
-                    output += '''<form method='POST' enctype='multipart/form-data' action='http://localhost:8080/'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
+                    output += '''<form method='POST' enctype='multipart/form-data'\
+                        action='http://localhost:8080/'><h2>What would you like\
+                        me to say?</h2><input name="message" type="text">\
+                        <input type="submit" value="Submit"> </form>'''
                     output += "</html></body>"
 
                     self.wfile.write(output)
@@ -166,23 +187,10 @@ class WebServerHandler(BaseHTTPRequestHandler):
                 if fields.get('add_new_resto'):
                     session = DBSession()
                     restaurante_name = fields.get('add_new_resto')
-                    new_restaurant = Restaurant(name = restaurante_name[0])
+                    new_restaurant = Restaurant(name=restaurante_name[0])
                     session.add(new_restaurant)
                     session.commit()
                     print "DB: inserting new restaurant: %s" % new_restaurant
-
-                    # Redirect back to restaurant list
-                    # self.send_response(301)
-                    # self.send_header('Content-type', 'text/html')
-                    # self.send_header('Location', 'http://localhost:8080/restaurants')
-                    # self.end_headers()
-
-                    # Verify new resto got put in DB
-                    # result = session.query(Restaurant.name[new_restaurant])
-                    # print result
-
-                    # self.wfile.write(output)
-                    # print output
 
                 # Edit restaurant
                 if fields.get('rename_resto'):
@@ -196,8 +204,9 @@ class WebServerHandler(BaseHTTPRequestHandler):
                     session = DBSession()
 
                     print '# Remove existing entry and add new'
-                    session.query(Restaurant).filter(Restaurant.id==id_current[0]).delete()
-                    new = Restaurant(name = name_new[0])
+                    session.query(Restaurant).filter(
+                        Restaurant.id == id_current[0]).delete()
+                    new = Restaurant(name=name_new[0])
                     session.add(new)
                     session.commit()
 
@@ -209,7 +218,8 @@ class WebServerHandler(BaseHTTPRequestHandler):
                     session = DBSession()
 
                     print 'Remove existing entry, id %s' % (id)
-                    session.query(Restaurant).filter(Restaurant.id==id[0]).delete()
+                    session.query(Restaurant).filter(
+                        Restaurant.id == id[0]).delete()
                     session.commit()
 
         except:
